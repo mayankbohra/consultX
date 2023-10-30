@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\Mayank\\Desktop\\project\\consultX\\contracts\\Session.sol": {
+      "lastModificationDate": 1698658731552,
+      "contentHash": "ed8cc2ec3c7541c99cca433b2b71b839",
+      "sourceName": "contracts/Session.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Session",
+        "SessionFactory"
+      ]
+    }
+  }
+}
