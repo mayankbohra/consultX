@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import {Session} from './CreateSession.js';
+import {Session} from '../../app/createsession/page.js';
 
 export default function Timer() {
   const Handler = useContext(Session);

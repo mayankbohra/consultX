@@ -3,10 +3,13 @@
 import { createContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
+import Navbar from "@/components/Navbar/Navbar";
 
 const Session = createContext();
 
 export default function CreateSession() {
+  const router = useRouter();
 
   const [selectedTime, setSelectedTime] = useState('1');
   const [selectedName, setSelectedName] = useState('Vaibhav');
@@ -28,10 +31,12 @@ export default function CreateSession() {
 
   const handleCreateSession = () => {
     toast.success("Session created successfully");
+    const timevalue = selectedTime*60;
+    router.push(`/timer?time=${timevalue}`);
   };
 
   return (
-    <Session.Provider value={{ selectedTime, setSelectedTime }}>
+    <><Navbar /><Session.Provider value={{ selectedTime, setSelectedTime }}>
       <div className="flex justify-center items-center h-screen">
         <div className="w-1/2 border p-8 rounded-lg">
           <div className="w-1/2">
@@ -64,8 +69,7 @@ export default function CreateSession() {
                 type="text"
                 value={amount}
                 readOnly
-                className="text-black w-full border rounded p-2"
-              />
+                className="text-black w-full border rounded p-2" />
             </div>
           </div>
           <div className="mt-4">
@@ -74,8 +78,7 @@ export default function CreateSession() {
               value={query}
               onChange={handleQueryChange}
               className="text-black w-full border rounded p-2"
-              rows="5"
-            />
+              rows="5" />
           </div>
           <div className="mt-4">
             <button
@@ -87,7 +90,7 @@ export default function CreateSession() {
           </div>
         </div>
       </div>
-    </Session.Provider>
+    </Session.Provider></>
   );
 };
 
