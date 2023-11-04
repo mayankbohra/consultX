@@ -9,10 +9,10 @@ import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams } from 'next/navigation';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 import { CardHeader } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const cardContainerStyle = {
   display: 'flex',
@@ -91,7 +91,9 @@ export default function Timer() {
 
   const handleEndSession = () => {
     toast.success("Session ended");
-    router.push(`/`);
+    setTimeout(() => {
+      router.push(`/`);
+    }, 1000);
   }
 
   return (
@@ -125,6 +127,7 @@ export default function Timer() {
         </Card>
       </div>
         </div>
+        <ToastContainer />
     </main>
   );
 }
