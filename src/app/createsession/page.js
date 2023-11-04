@@ -10,7 +10,7 @@ const Session = createContext();
 
 export default function CreateSession() {
   const router = useRouter();
-
+  const [uploadedtoIPFS, setUploadedtoIPFS] = useState(false);
   const [selectedTime, setSelectedTime] = useState('1');
   const [selectedName, setSelectedName] = useState('Vaibhav');
   const [query, setQuery] = useState('');
@@ -34,6 +34,11 @@ export default function CreateSession() {
     const timevalue = selectedTime*60;
     router.push(`/timer?time=${timevalue}`);
   };
+
+  const handleupload = () => {
+    toast.success("Uploaded to IPFS");
+    setUploadedtoIPFS(true);
+  }
 
   return (
     <><Navbar /><Session.Provider value={{ selectedTime, setSelectedTime }}>
@@ -82,8 +87,21 @@ export default function CreateSession() {
           </div>
           <div className="mt-4">
             <button
+              onClick={handleupload}
+              className={`bg-blue-500 text-white py-2 px-4 rounded cursor-pointer ${
+                !uploadedtoIPFS ? "" : "bg-gray-400 pointer-events-none"
+              }`}
+            >
+              Upload to IPFS
+            </button>
+          </div>
+          <div className="mt-4">
+            <button
               onClick={handleCreateSession}
-              className="bg-blue-500 text-white py-2 px-4 rounded cursor-pointer"
+              className={`bg-blue-500 text-white py-2 px-4 rounded cursor-pointer ${
+                uploadedtoIPFS ? "" : "bg-gray-400 pointer-events-none"
+              }`}
+              disabled={!uploadedtoIPFS}
             >
               Create Session
             </button>

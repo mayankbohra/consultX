@@ -1,21 +1,29 @@
 import React from 'react';
-import Link from 'next/link';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import { CardHeader } from '@mui/material';
 
 const containerStyle = {
   display: 'flex',
   justifyContent: 'center',
+  flexWrap: 'wrap', // Allow cards to wrap to the next row
 };
 
 const cardStyle = {
-    display: 'flex', // Display content horizontally
-    flexDirection: 'row', // Display content in a row
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '60px',
+  flexDirection: 'row',
+  margin: '10px',
+  backgroundColor: '#f0f0f0', // Background color for the first Card
+  boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)', // Shadow for the first Card
+  border: '1px solid #ccc', // Border for the first Card
+};
+
+const cardStyle2 = {
+  display: 'flex', // Display content horizontally
+  margin: '10px',
+  backgroundColor: '#e0e0e0', // Background color for the second Card
+  boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)', // Shadow for the second Card
+  border: '1px solid #bbb', // Border for the second Card
 };
 
 const headingStyle = {
@@ -27,72 +35,53 @@ const headingStyle = {
 const textStyle = {
   fontSize: 16,
   marginLeft: 16, // Add some spacing between elements
+  display: 'inline', // Display Typography elements horizontally
 };
 
 export default function Session() {
   return (
     <div style={containerStyle}>
       <Card sx={cardStyle}>
-      <Card sx={cardStyle}>
-        <CardContent>
-          <Typography variant="h5" sx={headingStyle}>
-            Session Details
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session ID: 12345
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Time: 10:00 AM - 11:00 AM
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Amount: $10.00
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Tutor: John Doe
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Link href="/session-details">View Details</Link>
-        </CardActions>
-      </Card>
-      <Card sx={cardStyle}>
-        <CardContent>
-          <Typography variant="h5" sx={headingStyle}>
-            Session Details
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session ID: 12345
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Time: 10:00 AM - 11:00 AM
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Amount: $10.00
-          </Typography>
-        </CardContent>
-        <CardContent>
-          <Typography variant="body2" sx={textStyle}>
-            Session Tutor: John Doe
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Link href="/session-details">View Details</Link>
-        </CardActions>
-      </Card>
+        <CardHeader title="Sessions" />
+        <Card sx={cardStyle2}>
+          <CardContent>
+            <Typography variant="h6" sx={textStyle}>
+              Session #35234
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Timing: 10:00 AM - 11:00 AM
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Date: 12/10/2021
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card sx={cardStyle2}>
+          <CardContent>
+            <Typography variant="h6" sx={textStyle}>
+              Session #35234
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Timing: 10:00 AM - 11:00 AM
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Date: 12/10/2021
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card sx={cardStyle2}>
+          <CardContent>
+            <Typography variant="h6" sx={textStyle}>
+              Session #35234
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Timing: 10:00 AM - 11:00 AM
+            </Typography>
+            <Typography variant="h6" sx={textStyle}>
+              Date: 12/10/2021
+            </Typography>
+          </CardContent>
+        </Card>
       </Card>
     </div>
   );
