@@ -90,10 +90,11 @@ export default function Timer() {
   };
 
   const handleEndSession = () => {
-    toast.success("Session ended");
-    setTimeout(() => {
+    const shouldEndSession = window.confirm("Are you sure you want to end the session?");
+    if (shouldEndSession) {
+      toast.success("Session ended");
       router.push(`/`);
-    }, 1000);
+    }
   }
 
   return (
@@ -101,33 +102,33 @@ export default function Timer() {
       <Navbar sessionInProgress={true} />
       <div style={cardContainerStyle}>
         <Card sx={cardstyle}>
-        <CardHeader title="Sessions Details" />
-        <Card sx={cardStyle2}>
-          <CardContent>
-            <Typography variant="h6" sx={textStyle}>
-              Session #35234
-            </Typography>
-            <Typography variant="h6" sx={textStyle}>
-              Timing: 10:00 AM - 11:00 AM
-            </Typography>
-            <Typography variant="h6" sx={textStyle}>
-              Date: 12/10/2021
-            </Typography>
-          </CardContent>
-        </Card>
+          <CardHeader title="Sessions Details" />
+          <Card sx={cardStyle2}>
+            <CardContent>
+              <Typography variant="h6" sx={textStyle}>
+                Session #35234
+              </Typography>
+              <Typography variant="h6" sx={textStyle}>
+                Timing: 10:00 AM - 11:00 AM
+              </Typography>
+              <Typography variant="h6" sx={textStyle}>
+                Date: 12/10/2021
+              </Typography>
+            </CardContent>
+          </Card>
         </Card>
         <div style={cardStyle}>
-        <Card sx={{ minWidth: 275 }}>
-          <CardContent>
-            <FontAwesomeIcon icon={faClock} style={timeStyle} /> {formatTime(seconds)}
-          </CardContent>
-          <CardActions>
-            <Button size="small" onClick={handleEndSession}>End Session</Button>
-          </CardActions>
-        </Card>
-      </div>
+          <Card sx={{ minWidth: 275 }}>
+            <CardContent>
+              <FontAwesomeIcon icon={faClock} style={timeStyle} /> {formatTime(seconds)}
+            </CardContent>
+            <CardActions>
+              <Button size="small" onClick={handleEndSession}>End Session</Button>
+            </CardActions>
+          </Card>
         </div>
-        <ToastContainer />
+      </div>
+      <ToastContainer />
     </main>
   );
 }
