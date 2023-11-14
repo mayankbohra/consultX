@@ -11,12 +11,15 @@ import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { CardHeader } from '@mui/material';
+import { ethers } from "ethers";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Session from '../../../artifacts/contracts/Session.sol/Session.json';
+
 const cardContainerStyle = {
   display: 'flex',
-  justifyContent: 'space-between', // Align the content to the left
+  justifyContent: 'space-between',
 };
 
 const cardStyle = {
@@ -46,31 +49,43 @@ const cardstyle = {
 };
 
 const cardStyle2 = {
-  display: 'flex', // Display content horizontally
+  display: 'flex',
   margin: '10px',
-  backgroundColor: '#e0e0e0', // Background color for the second Card
-  boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)', // Shadow for the second Card
-  border: '1px solid #bbb', // Border for the second Card
+  backgroundColor: '#e0e0e0',
+  boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)',
+  border: '1px solid #bbb',
 };
 
 const textStyle = {
   fontSize: 16,
-  marginLeft: 16, // Add some spacing between elements
-  display: 'inline', // Display Typography elements horizontally
+  marginLeft: 16,
+  display: 'inline',
 };
 
 export default function Timer() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [seconds, setSeconds] = useState(searchParams.get('time') || 0);
+
+  const [address, setAddress] = useState(searchParams.get('address'));
+  const [tutor, setTutor] = useState(searchParams.get('tutor'));
+  const [seconds, setSeconds] = useState(searchParams.get('time'));
+  const [amount, setAmount] = useState(searchParams.get('amount'));
+  const [query, setQuery] = useState(searchParams.get('query'));
+  const [file, setFile] = useState(searchParams.get('file'));
+
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (seconds > 0) {
         setSeconds(seconds - 1);
       } else {
-        toast.success("Session ended");
-        router.push(`/`);
+        clearInterval(interval);
+        console.log(address);
+
+        payForSession().then(() => {
+          setPaymentCompleted(true);
+        });
       }
     }, 1000);
 
@@ -78,6 +93,35 @@ export default function Timer() {
       clearInterval(interval);
     };
   }, [seconds]);
+
+  useEffect(() => {
+    if (paymentCompleted) {
+      router.push('/');
+    }
+  }, [paymentCompleted, router]);
+
+  const payForSession = async () => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(
+        address,
+        Session.abi,
+        signer
+      );
+
+      const paymentTransaction = await contract.makePayment({
+        value: amount,
+      });
+      await paymentTransaction.wait();
+      console.log('Session created:', sessionData);
+
+      setPaymentCompleted(true);
+    } catch (error) {
+      console.error('Error creating session:', error);
+    }
+  };
 
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);

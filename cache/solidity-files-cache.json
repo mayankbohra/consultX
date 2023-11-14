@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Mayank\\Desktop\\project\\consultX\\contracts\\Session.sol": {
-      "lastModificationDate": 1698658731552,
-      "contentHash": "ed8cc2ec3c7541c99cca433b2b71b839",
+      "lastModificationDate": 1699901183888,
+      "contentHash": "73bc6f20af16e90efcedf62b04f536bb",
       "sourceName": "contracts/Session.sol",
       "solcConfig": {
         "version": "0.8.19",
@@ -30,7 +30,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.0"
+        ">0.7.0 <=0.9.0"
       ],
       "artifacts": [
         "Session",

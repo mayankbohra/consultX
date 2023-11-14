@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ethers } from "ethers";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 import Navbar from "@/components/Navbar/Navbar";
+import SessionFactory from '../../../artifacts/contracts/Session.sol/SessionFactory.json';
 
 const axios = require('axios')
 const FormData = require('form-data')
@@ -12,27 +15,27 @@ const FormData = require('form-data')
 export default function CreateSession() {
   const router = useRouter();
   const [selectedTime, setSelectedTime] = useState('1');
-  const [selectedName, setSelectedName] = useState('Vaibhav');
+  const [selectedTutor, setSelectedTutor] = useState('0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091');
 
   const [query, setQuery] = useState('');
-  const [queryURL, setQueryURL] = useState(null);
 
   const [file, setFile] = useState(null);
-  const [fileURL, setFileURL] = useState(null);
+  const [fileHash, setFileHash] = useState(null);
 
   const [uploadedtoIPFS, setUploadedtoIPFS] = useState(false);
 
   const maticPerMinute = 0.012;
-  const amount = (selectedTime * maticPerMinute).toFixed(3);
+  const [amount, setAmount] = useState((selectedTime * maticPerMinute).toFixed(3));
 
-
+  const [address, setAddress] = useState('');
 
   const handleNameChange = (e) => {
-    setSelectedName(e.target.value);
+    setSelectedTutor(e.target.value);
   }
 
   const handleTimeChange = (e) => {
     setSelectedTime(e.target.value);
+    setAmount((e.target.value * maticPerMinute).toFixed(3));
   };
 
   const handleQueryChange = (e) => {
@@ -43,13 +46,67 @@ export default function CreateSession() {
     setFile(e.target.files[0]);
   };
 
-  const handleCreateSession = () => {
+  const handleCreateSession = async () => {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    const contract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_ADDRESS,
+      SessionFactory.abi,
+      signer
+    );
+
+    const amountToTransfer = ethers.utils.parseEther(amount.toString());
+    setSelectedTime(selectedTime * 60);
+
+    console.log(amountToTransfer.toString());
+
+    const sessionData = await contract.createSession(
+      selectedTutor,
+      query,
+      selectedTime,
+      amountToTransfer,
+      fileHash
+    );
+    toast.loading("Creating the Session");
+
+    const receipt = await sessionData.wait();
+    console.log(receipt);
+
+    let sessionAddress = null;
+    if (receipt.contractAddress === null) {
+      // Wait and check for the contract address in subsequent blocks
+      const waitBlocks = 5; // Adjust this value as needed
+      const startBlock = receipt.blockNumber;
+      let currentBlock = startBlock;
+
+      while (currentBlock - startBlock < waitBlocks && sessionAddress === null) {
+        const currentReceipt = await provider.getTransactionReceipt(receipt.transactionHash);
+        sessionAddress = currentReceipt.contractAddress;
+        currentBlock = currentReceipt.blockNumber;
+        // Sleep for a short time before checking again
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Adjust delay time if needed
+      }
+    } else {
+      sessionAddress = receipt.contractAddress;
+    }
+
+    console.log(sessionData);
+    console.log("Session Address:", sessionAddress);
+
+    setAddress(receipt.contractAddress);
+
+    toast.dismiss();
     toast.success("Session created successfully");
-    const timevalue = selectedTime * 60;
-    setTimeout(() => {
-      router.push(`/timer?time=${timevalue}`);
-    }, 1000);
   };
+
+  useEffect(() => {
+    console.log(address);
+    if (address) {
+      router.push(`/timer?address=${address}&tutor=${selectedTutor}&time=${selectedTime}&amount=${amount}&query=${query}&file=${fileHash}`);
+    }
+  }, [address]);
 
   const handleFileUpload = async () => {
     const formData = new FormData();
@@ -86,13 +143,21 @@ export default function CreateSession() {
         }
       );
       console.log(res.data);
-      toast.dismiss()
+      setFileHash(res.data.IpfsHash);
+
+      setUploadedtoIPFS(true);
+
+      toast.dismiss();
       toast.success('Uploaded to IPFS');
     } catch (error) {
       console.log(error);
       toast.error('Not Uploaded to IPFS');
     }
   };
+
+  useEffect(() => {
+    console.log(fileHash);
+  }, [fileHash]);
 
   return (
     <>
@@ -102,12 +167,12 @@ export default function CreateSession() {
           <div className="w-1/2">
             <label className="block font-bold">Select Tutor</label>
             <select
-              value={selectedName}
+              value={selectedTutor}
               onChange={handleNameChange}
               className="text-black w-full border rounded p-2"
             >
-              <option value="Vaibhav">Vaibhav</option>
-              <option value="Manasvi">Manasvi</option>
+              <option value="0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091">Vaibhav</option>
+              <option value="0x5c96e646905EE5446a727E588542C4a273D8c8a9">Manasvi</option>
             </select>
           </div>
           <div className=" mt-4 flex space-x-4">
