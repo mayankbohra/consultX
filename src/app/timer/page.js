@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from "@/components/Navbar/Navbar";
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -65,9 +65,11 @@ const textStyle = {
 export default function Timer() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const intervalRef = useRef(null);
 
   const [address, setAddress] = useState(searchParams.get('address'));
   const [tutor, setTutor] = useState(searchParams.get('tutor'));
+  const [duration, setDuration] = useState(searchParams.get('time'));
   const [seconds, setSeconds] = useState(searchParams.get('time'));
   const [amount, setAmount] = useState(searchParams.get('amount'));
   const [query, setQuery] = useState(searchParams.get('query'));
@@ -76,33 +78,29 @@ export default function Timer() {
   const [paymentCompleted, setPaymentCompleted] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       if (seconds > 0) {
         setSeconds(seconds - 1);
       } else {
-        clearInterval(interval);
-        console.log(address);
-
-        payForSession().then(() => {
-          setPaymentCompleted(true);
-        });
+        clearInterval(intervalRef.current);
+        toast.loading("Paying to the Tutor"); 
+        payForSession();
       }
     }, 1000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(intervalRef.current);
     };
   }, [seconds]);
 
-  useEffect(() => {
-    if (paymentCompleted) {
-      router.push('/');
-    }
-  }, [paymentCompleted, router]);
-
-  const payForSession = async () => {
+  const payForSession = async (paymentAmount) => {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      if (!provider) {
+        toast.warning('MetaMask not connected');
+      }
+
       const signer = provider.getSigner();
 
       const contract = new ethers.Contract(
@@ -111,13 +109,19 @@ export default function Timer() {
         signer
       );
 
-      const paymentTransaction = await contract.makePayment({
-        value: amount,
-      });
-      await paymentTransaction.wait();
+      console.log(paymentAmount);
 
+      const paymentTransaction = await contract.makePayment({
+        value: paymentAmount,
+      });
+
+      await paymentTransaction.wait();
       setPaymentCompleted(true);
+
     } catch (error) {
+      setPaymentCompleted(false);
+      toast.dismiss();
+      toast.warning("Please for the Session");
       console.error('Error creating session:', error);
     }
   };
@@ -132,13 +136,29 @@ export default function Timer() {
     return `${padZero(hours)}:${padZero(minutes)}:${padZero(remainingSeconds)}`;
   };
 
-  const handleEndSession = () => {
+  const handleEndSession = async () => {
     const shouldEndSession = window.confirm("Are you sure you want to end the session?");
     if (shouldEndSession) {
-      toast.success("Session ended");
-      router.push(`/`);
+      const requiredAmount = (((duration - seconds) / 60) * 0.012).toFixed(3);
+      const parsedAmount = ethers.utils.parseEther(requiredAmount.toString()).toString();
+
+      setAmount(parsedAmount);
+      clearInterval(intervalRef.current);
+
+      toast.loading("Paying to the Tutor");
+      await payForSession(parsedAmount);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (paymentCompleted) {
+      toast.dismiss();
+      toast.success("Payment successfull");
+      setTimeout(() => {
+        router.push('/');
+      }, 5000);
+    }
+  }, [paymentCompleted, router]);
 
   return (
     <main>
