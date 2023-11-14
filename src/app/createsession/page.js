@@ -57,10 +57,11 @@ export default function CreateSession() {
       signer
     );
 
-    const amountToTransfer = ethers.utils.parseEther(amount.toString());
+    const amountToTransfer = ethers.utils.parseEther(amount.toString())
+    setAmount(amountToTransfer);
     setSelectedTime(selectedTime * 60);
 
-    console.log(amountToTransfer.toString());
+    console.log("amount -> ",amount.toString());
 
     const sessionData = await contract.createSession(
       selectedTutor,
@@ -71,42 +72,20 @@ export default function CreateSession() {
     );
     toast.loading("Creating the Session");
 
-    const receipt = await sessionData.wait();
-    console.log(receipt);
-
-    let sessionAddress = null;
-    if (receipt.contractAddress === null) {
-      // Wait and check for the contract address in subsequent blocks
-      const waitBlocks = 5; // Adjust this value as needed
-      const startBlock = receipt.blockNumber;
-      let currentBlock = startBlock;
-
-      while (currentBlock - startBlock < waitBlocks && sessionAddress === null) {
-        const currentReceipt = await provider.getTransactionReceipt(receipt.transactionHash);
-        sessionAddress = currentReceipt.contractAddress;
-        currentBlock = currentReceipt.blockNumber;
-        // Sleep for a short time before checking again
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Adjust delay time if needed
-      }
-    } else {
-      sessionAddress = receipt.contractAddress;
-    }
-
-    console.log(sessionData);
-    console.log("Session Address:", sessionAddress);
-
-    setAddress(receipt.contractAddress);
+    await sessionData.wait();
+    setAddress(sessionData.to);
 
     toast.dismiss();
     toast.success("Session created successfully");
   };
 
   useEffect(() => {
+    console.log(amount.toString());
     console.log(address);
     if (address) {
       router.push(`/timer?address=${address}&tutor=${selectedTutor}&time=${selectedTime}&amount=${amount}&query=${query}&file=${fileHash}`);
     }
-  }, [address]);
+  }, [address,amount]);
 
   const handleFileUpload = async () => {
     const formData = new FormData();

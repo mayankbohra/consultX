@@ -106,7 +106,7 @@ export default function Timer() {
       const signer = provider.getSigner();
 
       const contract = new ethers.Contract(
-        address,
+        tutor,
         Session.abi,
         signer
       );
@@ -115,7 +115,6 @@ export default function Timer() {
         value: amount,
       });
       await paymentTransaction.wait();
-      console.log('Session created:', sessionData);
 
       setPaymentCompleted(true);
     } catch (error) {
