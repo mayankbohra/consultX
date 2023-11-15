@@ -19,6 +19,8 @@ import Session from '../../../artifacts/contracts/Session.sol/Session.json';
 
 const cardContainerStyle = {
   display: 'flex',
+  alignItems: 'center',
+  // margin: '1rem 5rem',
   justifyContent: 'space-between',
 };
 
@@ -50,6 +52,7 @@ const cardstyle = {
 
 const cardStyle2 = {
   display: 'flex',
+  
   margin: '10px',
   backgroundColor: '#e0e0e0',
   boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)',
@@ -160,6 +163,12 @@ export default function Timer() {
     }
   }, [paymentCompleted, router]);
 
+  const handleOpenFile = () => {
+    const fileLink = `https://purple-hilarious-wasp-600.mypinata.cloud/ipfs/${file}`;
+
+    window.open(fileLink, '_blank');
+  }
+
   return (
     <main>
       <Navbar sessionInProgress={true} />
@@ -167,16 +176,19 @@ export default function Timer() {
         <Card sx={cardstyle}>
           <CardHeader title="Sessions Details" />
           <Card sx={cardStyle2}>
-            <CardContent>
+            <CardContent style={{ display: 'flex', flexDirection: 'column', alignItem: 'center' }}>
               <Typography variant="h6" sx={textStyle}>
-                Session #35234
+                Duration: {duration/60} minutes
               </Typography>
               <Typography variant="h6" sx={textStyle}>
-                Timing: 10:00 AM - 11:00 AM
+                Query: {query}
               </Typography>
               <Typography variant="h6" sx={textStyle}>
-                Date: 12/10/2021
+                Total Amount to pay: {ethers.utils.formatEther(amount)} Matic
               </Typography>
+              <button className='bg-blue-500 text-white py-2 px-4 rounded cursor-pointer' variant='contained' onClick={handleOpenFile}>
+                View File
+              </button>
             </CardContent>
           </Card>
         </Card>
