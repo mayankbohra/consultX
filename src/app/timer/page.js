@@ -15,7 +15,7 @@ import { ethers } from "ethers";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Session from '../../../artifacts/contracts/Session.sol/Session.json';
+import SessionFactory from '../../../artifacts/contracts/Session.sol/SessionFactory.json';
 
 const cardContainerStyle = {
   display: 'flex',
@@ -75,6 +75,7 @@ export default function Timer() {
   const [duration, setDuration] = useState(searchParams.get('time'));
   const [seconds, setSeconds] = useState(searchParams.get('time'));
   const [amount, setAmount] = useState(searchParams.get('amount'));
+  const [transactionid, setTransaction] = useState(searchParams.get('transaction'));
   const [query, setQuery] = useState(searchParams.get('query'));
   const [file, setFile] = useState(searchParams.get('file'));
 
@@ -108,13 +109,16 @@ export default function Timer() {
 
       const contract = new ethers.Contract(
         tutor,
-        Session.abi,
+        SessionFactory.abi,
         signer
       );
+      let sessionCount = await getEventsFromTransactionHash(transactionid);
+
+      
 
       console.log(paymentAmount);
 
-      const paymentTransaction = await contract.makePayment({
+      const paymentTransaction = await contract.makePayment(sessionCount,{
         value: paymentAmount,
       });
 
@@ -128,6 +132,24 @@ export default function Timer() {
       console.error('Error creating session:', error);
     }
   };
+
+  async function getEventsFromTransactionHash(transactionHash) {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const transactionReceipt = await provider.getTransactionReceipt(transactionHash);
+      if (!transactionReceipt) {
+        console.log("Transaction receipt not found.");
+        return;
+      }
+  
+      const contractInterface = new ethers.utils.Interface(SessionFactory.abi);
+      const events = contractInterface.parseLog(transactionReceipt.logs[0]);
+      const decimalValue = parseInt(events.args[0]._hex, 16);
+      return decimalValue;
+    } catch (error) {
+      console.error("Error getting transaction receipt:", error.message);
+    }
+  }
 
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
@@ -171,7 +193,6 @@ export default function Timer() {
 
   return (
     <main>
-      <Navbar sessionInProgress={true} />
       <div style={cardContainerStyle}>
         <Card sx={cardstyle}>
           <CardHeader title="Sessions Details" />

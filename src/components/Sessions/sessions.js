@@ -8,7 +8,6 @@ import { CardHeader } from '@mui/material';
 import { ethers } from "ethers";
 
 import SessionFactory from '../../../artifacts/contracts/Session.sol/SessionFactory.json';
-import Session from '../../../artifacts/contracts/Session.sol/Session.json';
 
 const containerStyle = {
   display: 'flex',
@@ -47,59 +46,64 @@ const textStyle = {
 export default function session() {
   const handleFetchData = async () => {
     try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider2 = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider2.getSigner();
       const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
-
+      const account = provider2.getSigner();
+      const Address = await account.getAddress();
+      // console.log(Address);
       const contract = new ethers.Contract(
         process.env.NEXT_PUBLIC_ADDRESS,
         SessionFactory.abi,
         provider
       );
 
-      console.log('Contract instantiated');
+      const getSession = contract.filters.SessionEvent();
+      const AllSession = await contract.queryFilter(getSession);
 
-      const filter = contract.filters.sessionCreated();
-      console.log('Filter set up');
+      console.log(AllSession);
 
-      const events = await contract.queryFilter(filter);
-      console.log('Events fetched:', events.length);
-
-      const sessions = await Promise.all(
-        events.map(async (event) => {
-          const sessionAddress = event.args.sessionAddress;
-          const sessionContract = new ethers.Contract(sessionAddress, Session.abi, provider);
-
-          const user = await sessionContract.user();
-          const tutor = await sessionContract.tutor();
-          const query = await sessionContract.query();
-          const duration = await sessionContract.duration();
-          const amount = ethers.utils.formatEther(await sessionContract.amount());
-          const fileURI = await sessionContract.fileURI();
-
-          return {
-            address: sessionAddress,
-            user,
-            tutor,
-            query,
-            duration,
-            amount,
-            fileURI,
-          };
-        })
-      );
-
-      sessions.forEach((session) => {
-        console.log('Session Address:', session.address);
-        console.log('User:', session.user);
-        console.log('Tutor:', session.tutor);
-        console.log('Query:', session.query);
-        console.log('Duration:', session.duration);
-        console.log('Amount:', session.amount);
-        console.log('File URI:', session.fileURI);
-      });
+      // console.log('Contract instantiated');
+      // const userSessions = await contract.returnSessions(Address);
+      // console.log(userSessions);
+      // await userSessions.wait();
+      // const SessionInfo = await getEventsFromTransactionHash(userSessions.hash);
+      // console.log(SessionInfo);
+      // let SerializerEvent = [];
+      // for(let i =0; i<SessionInfo.length; i++) {
+      //   let Sessionid = parseInt(SessionInfo[i].args[0]._hex, 16);
+      //   let Timing = parseInt(SessionInfo[i].args[5]._hex, 16);
+      //   let Amount = parseInt(SessionInfo[i].args[4]._hex, 16);
+      //   SerializerEvent[i] = [Sessionid, Timing, Amount]; 
+      // }
+      // console.log(SerializerEvent);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+  
+  async function getEventsFromTransactionHash(transactionHash) {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const transactionReceipt = await provider.getTransactionReceipt(transactionHash);
+      if (!transactionReceipt) {
+        console.log(transactionHash)
+        console.log("Transaction receipt not found.");
+        return;
+      }
+  
+      const contractInterface = new ethers.utils.Interface(SessionFactory.abi);
+      console.log(transactionReceipt);
+      let events = [];
+      for(let i = 0; i<transactionReceipt.logs.length-1; i++) {
+        events[i] = contractInterface.parseLog(transactionReceipt.logs[i]);
+      }
+      return events;
+    } catch (error) {
+      console.error("Error getting transaction receipt:", error.message);
+    }
+  }
 
   return (
     <>

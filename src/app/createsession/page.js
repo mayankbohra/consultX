@@ -28,6 +28,7 @@ export default function CreateSession() {
   const [amount, setAmount] = useState((selectedTime * maticPerMinute).toFixed(3));
 
   const [address, setAddress] = useState('');
+  const [transactionid, setTransaction] = useState('');
 
   const handleNameChange = (e) => {
     setSelectedTutor(e.target.value);
@@ -74,6 +75,7 @@ export default function CreateSession() {
 
     await sessionData.wait();
     setAddress(sessionData.to);
+    setTransaction(sessionData.hash);
 
     toast.dismiss();
     toast.success("Session created successfully");
@@ -83,7 +85,7 @@ export default function CreateSession() {
     console.log(amount.toString());
     console.log(address);
     if (address) {
-      router.push(`/timer?address=${address}&tutor=${selectedTutor}&time=${selectedTime}&amount=${amount}&query=${query}&file=${fileHash}`);
+      router.push(`/timer?address=${address}&tutor=${selectedTutor}&time=${selectedTime}&amount=${amount}&query=${query}&file=${fileHash}&transaction=${transactionid}`);
     }
   }, [address,amount]);
 
@@ -140,7 +142,6 @@ export default function CreateSession() {
 
   return (
     <>
-      <Navbar />
       <div className="flex justify-center items-center h-screen">
         <div className="w-1/2 border p-8 rounded-lg">
           <div className="w-1/2">

@@ -16,7 +16,7 @@ export default function Navbar({ sessionInProgress }) {
                     <span className="text-gray-400">Home</span>
                 ) : (
                     // Render the link when there's no active session
-                    <a href="/" className="text-white hover:text-blue-200">Home</a>
+                    <Link href="/" className="text-white hover:text-blue-200">Home</Link>
                 )}
                 {sessionInProgress ? (
                     // Render a disabled link when the session is in progress
