@@ -27,7 +27,7 @@ contract SessionFactory {
         string fileURI
     );
 
-        event SessionEvent(
+    event SessionEvent(
         uint256 id,
         address indexed user,
         address indexed tutor,

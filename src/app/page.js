@@ -7,7 +7,6 @@ import Session from '../components/Sessions/sessions.js';
 export default function Home() {
   return (
     <div>
-      {/* <Navbar /> */}
       <Session />
       <ToastContainer />
     </div>

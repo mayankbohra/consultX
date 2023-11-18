@@ -1,11 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
-import Navbar from "@/components/Navbar/Navbar";
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import { Card, CardContent, Typography, Button, Box } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams } from 'next/navigation';
@@ -16,54 +11,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import SessionFactory from '../../../artifacts/contracts/Session.sol/SessionFactory.json';
-
-const cardContainerStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  // margin: '1rem 5rem',
-  justifyContent: 'space-between',
-};
-
-const cardStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  minHeight: '50vh',
-  margin: '30px',
-};
-
-const timeStyle = {
-  fontSize: '24px',
-};
-
-const headingStyle = {
-  fontSize: 24,
-  fontWeight: 'bold',
-  marginBottom: 16,
-};
-
-const cardstyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '60px',
-};
-
-const cardStyle2 = {
-  display: 'flex',
-  
-  margin: '10px',
-  backgroundColor: '#e0e0e0',
-  boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.2)',
-  border: '1px solid #bbb',
-};
-
-const textStyle = {
-  fontSize: 16,
-  marginLeft: 16,
-  display: 'inline',
-};
 
 export default function Timer() {
   const router = useRouter();
@@ -87,7 +34,7 @@ export default function Timer() {
         setSeconds(seconds - 1);
       } else {
         clearInterval(intervalRef.current);
-        toast.loading("Paying to the Tutor"); 
+        toast.loading("Paying to the Tutor");
         payForSession();
       }
     }, 1000);
@@ -114,11 +61,7 @@ export default function Timer() {
       );
       let sessionCount = await getEventsFromTransactionHash(transactionid);
 
-      
-
-      console.log(paymentAmount);
-
-      const paymentTransaction = await contract.makePayment(sessionCount,{
+      const paymentTransaction = await contract.makePayment(sessionCount, {
         value: paymentAmount,
       });
 
@@ -141,7 +84,7 @@ export default function Timer() {
         console.log("Transaction receipt not found.");
         return;
       }
-  
+
       const contractInterface = new ethers.utils.Interface(SessionFactory.abi);
       const events = contractInterface.parseLog(transactionReceipt.logs[0]);
       const decimalValue = parseInt(events.args[0]._hex, 16);
@@ -181,50 +124,71 @@ export default function Timer() {
       toast.success("Payment successfull");
       setTimeout(() => {
         router.push('/');
-      }, 5000);
+      }, 2000);
     }
   }, [paymentCompleted, router]);
 
   const handleOpenFile = () => {
-    const fileLink = `https://purple-hilarious-wasp-600.mypinata.cloud/ipfs/${file}`;
+    const fileLink = `https://${process.env.NEXT_PUBLIC_PINATA_GATEWAY}.mypinata.cloud/ipfs/${file}`;
 
     window.open(fileLink, '_blank');
   }
 
   return (
     <main>
-      <div style={cardContainerStyle}>
-        <Card sx={cardstyle}>
-          <CardHeader title="Sessions Details" />
-          <Card sx={cardStyle2}>
-            <CardContent style={{ display: 'flex', flexDirection: 'column', alignItem: 'center' }}>
-              <Typography variant="h6" sx={textStyle}>
-                Duration: {duration/60} minutes
-              </Typography>
-              <Typography variant="h6" sx={textStyle}>
-                Query: {query}
-              </Typography>
-              <Typography variant="h6" sx={textStyle}>
-                Total Amount to pay: {ethers.utils.formatEther(amount)} Matic
-              </Typography>
-              <button className='bg-blue-500 text-white py-2 px-4 rounded cursor-pointer' variant='contained' onClick={handleOpenFile}>
-                View File
-              </button>
-            </CardContent>
-          </Card>
-        </Card>
-        <div style={cardStyle}>
-          <Card sx={{ minWidth: 275 }}>
-            <CardContent>
-              <FontAwesomeIcon icon={faClock} style={timeStyle} /> {formatTime(seconds)}
-            </CardContent>
-            <CardActions>
-              <Button size="small" onClick={handleEndSession}>End Session</Button>
-            </CardActions>
-          </Card>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '100px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '80%' }}>
+          <div style={{ width: '100%', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card sx={{ padding: '20px', backgroundColor: '#333', color: '#fff', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', width: '45%' }}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom sx={{ color: '#2196f3' }}>
+                  Sessions Details
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  <span style={{ fontWeight: 'bold', color: '#FF9800' }}>Duration: </span>
+                  {duration / 60} {duration > 60 ? 'minutes' : 'minute'}
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  <span style={{ fontWeight: 'bold', color: '#FF9800' }}>Query: </span>
+                  {query}
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  <span style={{ fontWeight: 'bold', color: '#FF9800' }}>Total Amount to pay: </span>
+                  {ethers.utils.formatEther(amount)} Matic
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: '#1976D2', color: '#FFF', marginTop: 2 }}
+                  onClick={handleOpenFile}
+                >
+                  View File
+                </Button>
+              </CardContent>
+            </Card>
+            <div style={{ width: '45%' }}>
+              <Card sx={{ padding: '20px', backgroundColor: '#333', color: '#fff', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <CardContent style={{ textAlign: 'center' }}>
+                  <FontAwesomeIcon icon={faClock} style={{ fontSize: '48px', color: '#1976D2' }} />
+                  <Typography variant="h6" gutterBottom style={{ marginTop: '10px', color: '#FFF' }}>
+                    {formatTime(seconds)}
+                  </Typography>
+                </CardContent>
+                <Box display="flex" justifyContent="center" mb={2}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    sx={{ backgroundColor: '#FF9800', color: '#FFF' }}
+                    onClick={handleEndSession}
+                  >
+                    End Session
+                  </Button>
+                </Box>
+              </Card>
+            </div>
+          </div>
+          <ToastContainer />
         </div>
       </div>
-      <ToastContainer />
     </main>
   );
 }
