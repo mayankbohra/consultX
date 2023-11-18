@@ -27,7 +27,7 @@ const Wallet = () => {
   const connectWallet = async () => {
     console.log("connectWallet function called");
     if (!window.ethereum) {
-      console.error("window.ethereum is not available");
+      toast.error("No Wallet Found!");
       return;
     }
 

@@ -1,23 +1,57 @@
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
 import Wallet from './Wallet.js';
-import Link from 'next/link'; 
+import Link from 'next/link';
 
-export default function Navbar() {
+export default function Navbar({ sessionInProgress }) {
+    const [homeHovered, setHomeHovered] = useState(false);
+    const [createSessionHovered, setCreateSessionHovered] = useState(false);
+
+    const homeLinkStyles = {
+        color: homeHovered ? '#FF9800' : '#FFF',
+        fontWeight: 'bold',
+        transition: 'color 0.3s',
+        textDecoration: 'none',
+    };
+
+    const createSessionLinkStyles = {
+        color: createSessionHovered ? '#FF9800' : '#FFF',
+        fontWeight: 'bold',
+        transition: 'color 0.3s',
+        textDecoration: 'none', 
+    };
+
     return (
         <nav className="bg-gray-900 text-white p-4 flex justify-between items-center">
-            {/* Left side - App Name */}
             <div className="text-white text-xl font-bold">consultX</div>
 
-            {/* Middle side - Links */}
             <div className="hidden md:flex space-x-4">
-                <a href="#" className="text-white hover:text-blue-200">Home</a>
-                <Link href="/CreateSession" className="text-white hover:text-blue-200">
-                    Create Session
-                </Link>
+                {sessionInProgress ? (
+                    <span className="text-gray-400">Home</span>
+                ) : (
+                    <div
+                        onMouseEnter={() => setHomeHovered(true)}
+                        onMouseLeave={() => setHomeHovered(false)}
+                    >
+                        <Link href="/">
+                            <span style={homeLinkStyles}>Home</span>
+                        </Link>
+                    </div>
+                )}
+                {sessionInProgress ? (
+                    <span className="text-gray-400">Create Session</span>
+                ) : (
+                    <div
+                        onMouseEnter={() => setCreateSessionHovered(true)}
+                        onMouseLeave={() => setCreateSessionHovered(false)}
+                    >
+                        <Link href="/createsession">
+                            <span style={createSessionLinkStyles}>Create Session</span>
+                        </Link>
+                    </div>
+                )}
             </div>
-
-            {/* Right side - Connect Wallet Button */}
             <Wallet />
         </nav>
-    )
-};
+    );
+}

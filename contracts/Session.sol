@@ -1,84 +1,119 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Session {
-    address public user;
-    address payable public tutor;
-    string public query;
-    uint256 public duration;
-    uint256 public amount;
-
-    event SessionCreated(
-        address indexed user,
-        address indexed tutor,
-        uint256 duration,
-        uint256 amount
-    );
-    event PaymentReceived(
-        address indexed user,
-        address indexed tutor,
-        uint256 amountPaid
-    );
-
-    constructor(
-        address _user,
-        address payable _tutor,
-        string memory _query,
-        uint256 _duration
-    ) {
-        require(_user != address(0), "Invalid user address");
-        require(_tutor != address(0), "Invalid tutor address");
-        require(bytes(_query).length > 0, "Query cannot be empty");
-        require(_duration > 0, "Duration must be greater than zero");
-
-        user = _user;
-        tutor = _tutor;
-        query = _query;
-        duration = _duration;
-
-        amount = _duration * 0.0002 ether;
-
-        emit SessionCreated(_user, _tutor, _duration, amount);
-    }
-
-    function makePayment() public payable {
-        require(msg.sender == user, "Only the user can make the payment");
-        require(msg.value >= amount, "Insufficient Ether sent");
-
-        tutor.transfer(amount);
-        emit PaymentReceived(user, tutor, msg.value);
-    }
-
-    function checkBalanceSufficient() public view returns (bool) {
-        return user.balance >= amount;
-    }
-}
+// SPDX-License-Identifier: Unlicensed
+pragma solidity >0.7.0 <=0.9.0;
 
 contract SessionFactory {
-    address[] public sessionContracts;
-
-    event SessionContractCreated(
-        address indexed sessionContract,
-        address indexed user,
-        address indexed tutor
-    );
-
-    function createSession(
-        address payable _tutor,
-        string memory _query,
-        uint256 _duration
-    ) public {
-        require(_tutor != address(0), "Invalid tutor address");
-        require(bytes(_query).length > 0, "Query cannot be empty");
-        require(_duration > 0, "Duration must be greater than zero");
-
-        Session newSession = new Session(msg.sender, _tutor, _query, _duration);
-        sessionContracts.push(address(newSession));
-
-        emit SessionContractCreated(address(newSession), msg.sender, _tutor);
+    struct Session {
+        uint256 id;
+        address user;
+        address payable tutor;
+        string query;
+        uint256 duration;
+        uint256 amount;
+        string fileURI;
+        bool paid;
     }
 
-    function getSessionContracts() public view returns (address[] memory) {
-        return sessionContracts;
+    event SessionCreated(
+        uint256 id
+        );
+
+    event SessionRetrieved(
+        uint256 id,
+        address indexed user,
+        address indexed tutor,
+        string query,
+        uint256 duration,
+        uint256 amount,
+        string fileURI
+    );
+
+    event SessionEvent(
+        uint256 id,
+        address indexed user,
+        address indexed tutor,
+        string query,
+        uint256 duration,
+        uint256 amount,
+        string fileURI
+    );
+
+    uint256 public sessionCounter;
+    mapping(address => mapping(uint256 => Session)) public sessions;
+
+    constructor() {
+        sessionCounter = 0;
+    }
+
+    function makePayment(uint256 sessionId) public payable {
+        Session storage session = sessions[msg.sender][sessionId];
+        require(msg.sender == session.user, "Only the user can make the payment");
+        require(msg.value >= session.amount, "Insufficient Ether sent");
+        require(!session.paid, "Payment already made");
+
+        session.tutor.transfer(session.amount);
+        session.paid = true;
+    }
+
+
+    function createSession(
+        address payable sessionTutor,
+        string memory sessionQuery,
+        uint256 sessionDuration,
+        uint256 sessionAmount,
+        string memory sessionFileURI
+    ) public {
+        sessionCounter++;
+        Session memory newSession = Session(
+            sessionCounter,
+            msg.sender, 
+            sessionTutor, 
+            sessionQuery, 
+            sessionDuration, 
+            sessionAmount, 
+            sessionFileURI,
+            false
+        );
+
+        sessions[msg.sender][sessionCounter] = newSession;
+        emit SessionEvent(
+            sessionCounter,
+            msg.sender, 
+            sessionTutor, 
+            sessionQuery, 
+            sessionDuration, 
+            sessionAmount, 
+            sessionFileURI
+        );
+    }
+
+    function returnSessions(address wallet) public returns (Session[] memory) {
+        uint256 userSessionCounter = 0;
+        for (uint256 i = 1; i <= sessionCounter; i++) {
+            if (sessions[wallet][i].user == wallet) {
+                userSessionCounter++;
+            }
+        }
+
+        Session[] memory userSessions = new Session[](userSessionCounter);
+        userSessionCounter = 0;
+
+        for (uint256 i = 1; i <= sessionCounter; i++) {
+            Session storage session = sessions[wallet][i];
+            if (session.user == wallet) {
+                userSessions[userSessionCounter] = session;
+                userSessionCounter++;
+                emit SessionRetrieved(
+                    session.id,
+                    session.user,
+                    session.tutor,
+                    session.query,
+                    session.duration,
+                    session.amount,
+                    session.fileURI
+                );
+            }
+        }
+
+        return userSessions;
     }
 }
