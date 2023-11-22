@@ -89,8 +89,8 @@ export default function session() {
   };
 
   const getTutorName = (tutorAddress) => {
-    if (tutorAddress === '0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091') return 'Vaibhav';
-    if (tutorAddress === '0x5c96e646905EE5446a727E588542C4a273D8c8a9') return 'Manasvi';
+    if (tutorAddress === '0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091') return 'Tutor 1';
+    if (tutorAddress === '0x5c96e646905EE5446a727E588542C4a273D8c8a9') return 'Tutor 2';
     return 'Unknown Tutor';
   };
 
@@ -122,7 +122,7 @@ export default function session() {
               <Grid item key={index} xs={12} sm={6} md={4} lg={3} xl={3}>
                 <Card sx={{ padding: '20px', backgroundColor: '#333', color: '#fff', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
                   <CardHeader
-                    title="Sessions"
+                    title="Session"
                     sx={{ color: '#2196f3' }}
                   />
                   <CardContent>

@@ -35,7 +35,7 @@ export default function Timer() {
       } else {
         clearInterval(intervalRef.current);
         toast.loading("Paying to the Tutor");
-        payForSession();
+        payForSession(amount);
       }
     }, 1000);
 
