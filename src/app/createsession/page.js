@@ -155,8 +155,8 @@ export default function CreateSession() {
                 onChange={handleNameChange}
                 className="text-black w-full border rounded p-2"
               >
-                <option value="0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091">Vaibhav</option>
-                <option value="0x5c96e646905EE5446a727E588542C4a273D8c8a9">Manasvi</option>
+                <option value="0x0C2a1797D2EC0a0Cbcc7b611382F8e1E58fA6091">Tutor 1</option>
+                <option value="0x5c96e646905EE5446a727E588542C4a273D8c8a9">Tutor 2</option>
               </select>
             </div>
             <div className=" mt-4 flex space-x-4">
